@@ -29,7 +29,7 @@ function makeChannelImage(currentImageDataJSON, index){
   let channelMinimalValue = currentImageDataJSON.channels[index].window.min;
   let channelMaximalValue = currentImageDataJSON.channels[index].window.max;
 
-  if ($("#checkbox_"+currentImageDataJSON.channels[index].label).is(':checked')){
+  if ($("#checkbox_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label).is(':checked')){
     currentImageDataJSON.channels[index].active = true;
   }
   else{
@@ -48,10 +48,9 @@ function makeChannelImage(currentImageDataJSON, index){
 }
 
 function updateChannelColor(currentImageDataJSON, index){
-  let channelLabel = currentImageDataJSON.channels[index].label
-  var colorChooserIdentifier = "color_"+channelLabel;
+  var colorChooserIdentifier = "color_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label;
+  var lutChooserIdentifier = "lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label;
   // color value is '#ff0000', we want to remove the '#'
-  var lutChooserIdentifier = "lut_"+currentImageDataJSON.channels[index].label
   if(document.getElementById(lutChooserIdentifier).value != ""){
     var newColor = document.getElementById(lutChooserIdentifier).value.replace("#", '');
   }
@@ -62,31 +61,25 @@ function updateChannelColor(currentImageDataJSON, index){
 }
 
 function updateColorChanger(currentImageDataJSON, index){
-  var colorChangerIdentifier = "#color_"+currentImageDataJSON.channels[index].label
-    $(colorChangerIdentifier).on("change", "input", function () { //Not working?
-      //updateChannelAndResultImage(currentImageDataJSON, index)
-      updateAllChannelsAndResultImage(currentImageDataJSON)
-    });
+  var colorChangerIdentifier = "#color_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label
+  $(colorChangerIdentifier).on("change", "input", function () { //Not working?
+    //updateChannelAndResultImage(currentImageDataJSON, index)
+    updateAllChannelsAndResultImage(currentImageDataJSON)
+  });
 }
 
 function updateLUTChanger(currentImageDataJSON, index){
-  // var lutChangerIdentifier = "#lut_"+currentImageDataJSON.channels[index].label
-  //   $(lutChangerIdentifier).on("change", "select", function () { //Not working?
-  //     //updateChannelAndResultImage(currentImageDataJSON, index)
-  //     updateAllChannelsAndResultImage(currentImageDataJSON)
-  //   });
-}
-
-function makeThumbnails(){
-  jQuery(document).ready(function ($) {
-    $( "#TuningItems" ).tabs()
+  var lutChangerIdentifier = "#lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label
+  $(lutChangerIdentifier).on("change", "select", function () { //Not working?
+    //updateChannelAndResultImage(currentImageDataJSON, index)
+    updateAllChannelsAndResultImage(currentImageDataJSON)
   });
 }
 
 function updateZDepthTuningSlider(currentImageDataJSON){
   var sliderIdentifier = "#zdepth-slider_"+currentImageDataJSON.id;
-  var valueVisualizerIdentifier = "#ZdepthValue_"+currentImageDataJSON.rdefs.defaultZ;
-  jQuery(document).ready(function ($) {
+  var valueVisualizerIdentifier = "#ZdepthValue_read_input_"+currentImageDataJSON.id;
+  //jQuery(document).ready(function ($) {
     $( sliderIdentifier ).slider({
       orientation: "horizontal",
       range: "min",
@@ -105,13 +98,13 @@ function updateZDepthTuningSlider(currentImageDataJSON){
       }
     });
     $( valueVisualizerIdentifier ).val( $( sliderIdentifier ).slider( "value" ) );
-  });
+  //});
 }
 
 function updateTTimeTuningSlider(currentImageDataJSON){
   var sliderIdentifier = "#ttime-slider_"+currentImageDataJSON.id;
-  var valueVisualizerIdentifier = "#TtimeValue_"+currentImageDataJSON.rdefs.defaultT;
-  // jQuery(document).ready(function ($) {
+  var valueVisualizerIdentifier = "#TtimeValue_read_input_"+currentImageDataJSON.id;
+  //jQuery(document).ready(function ($) {
     $( sliderIdentifier ).slider({
       orientation: "horizontal",
       range: "min",
@@ -130,14 +123,14 @@ function updateTTimeTuningSlider(currentImageDataJSON){
       }
     });
     $( valueVisualizerIdentifier ).val( $( sliderIdentifier ).slider( "value" ) );
-  // });
+  //});
 }
 
 function updateChannelTuningSlider(currentImageDataJSON, index){
-  var sliderIdentifier = "#slider-range_"+currentImageDataJSON.channels[index].label.toString();
-  var valueVisualizerIdentifier = "#minmaxPixelValues_"+currentImageDataJSON.channels[index].label.toString();
+  var sliderIdentifier = "#slider-range_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label.toString();
+  var valueVisualizerIdentifier = "#minmaxPixelValues_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label.toString();
   //currentImageDataJSON.pixel_range[1] = document.getElementById("RealDynamicRange").value;
-  jQuery(document).ready(function ($) {
+  //jQuery(document).ready(function ($) {
     $( sliderIdentifier ).slider({
         orientation: "horizontal",
         range: true,
@@ -155,7 +148,7 @@ function updateChannelTuningSlider(currentImageDataJSON, index){
           $( valueVisualizerIdentifier ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] )
           currentImageDataJSON.channels[index].window.min = ui.values[ 0 ];
           currentImageDataJSON.channels[index].window.max = ui.values[ 1 ];
-          currentImageDataJSON.pixel_range[1] = document.getElementById("RealDynamicRange").value
+          currentImageDataJSON.pixel_range[1] = document.getElementById("RealDynamicRange_"+currentImageDataJSON.id).value
           $( sliderIdentifier ).slider( "option", "max", currentImageDataJSON.pixel_range[1] );
           updateAllChannelsAndResultImage(currentImageDataJSON)
         }
@@ -163,29 +156,35 @@ function updateChannelTuningSlider(currentImageDataJSON, index){
     //var max = $( sliderIdentifier ).slider( "option", "max" );
 
     $( valueVisualizerIdentifier ).val($( sliderIdentifier ).slider("values", 0)+" - "+$( sliderIdentifier ).slider("values", 1))
-  });
+  //});
 }
 
+
 function updateAllChangers(currentImageDataJSON, index){
-  console.log('updateAllChangers', currentImageDataJSON, index)
+  //jQuery(document).ready(function ($) {
+    console.log('updateAllChangers', currentImageDataJSON, index)
     updateColorChanger(currentImageDataJSON, index);
     updateLUTChanger(currentImageDataJSON, index);
     updateChannelTuningSlider(currentImageDataJSON, index)
+  //});
 }
 
 function generateTuningThumbnailHTMLlist(currentImageDataJSON){
   var tuningThumbnailsHTMLlist = `
-    <ul id="ThumbnailsList">
-      <li><a href="#tuner_result">Result image</a></li>
+    <ul class="ThumbnailsList" id="ThumbnailsList_${currentImageDataJSON.id}">
+      <li><a href="#tuner_result_${currentImageDataJSON.id}">Result image</a></li>
 
   `
   for(var index=0; index<currentImageDataJSON.channels.length; index++){
     var channelThumbnailListItem = `
-      <li><a href="#tuner_+${currentImageDataJSON.channels[index].label}">${currentImageDataJSON.channels[index].label}</a></li>
+      <li><a href="#tuner_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}">${currentImageDataJSON.channels[index].label}</a></li>
     `
     tuningThumbnailsHTMLlist = tuningThumbnailsHTMLlist+channelThumbnailListItem;
   }
-  tuningThumbnailsHTMLlist = tuningThumbnailsHTMLlist+"</ul>"
+  var quickFigureThumbnailListItem = `
+    <li><a href="#tuner_quick_figure_${currentImageDataJSON.id}">Quick Figure</a></li>
+  `
+  tuningThumbnailsHTMLlist = tuningThumbnailsHTMLlist+quickFigureThumbnailListItem+"</ul>"
   return tuningThumbnailsHTMLlist;
 }
 
@@ -199,24 +198,26 @@ function generateChannelTuningHTML(currentImageDataJSON, currentLUTsJSON, index)
     let lut_name = lut.name.replace('.lut', '');
     return `<option value="${lut.name}">${lut_name}</option>`;
   }).join("");
-
+  //console.log("lutsHtml", lutsHtml)
   var channelRenderingURL = updateChannelImageURL(currentImageDataJSON, index);
 
   var channelRenderingHTMLstring = `
-    <div style="position:relative;" class="ChannelTuner" id="tuner_+${currentImageDataJSON.channels[index].label}">
-      <img class="ChannelImage" id="${currentImageDataJSON.channels[index].label}" src="${channelRenderingURL}"/>
+    <div style="position:relative;" class="ChannelTuner" id="tuner_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}">
+      <input type="text" name="channel_${currentImageDataJSON.id}_${index}" id="channel_${currentImageDataJSON.id}_${index}" value="${currentImageDataJSON.channels[index].label}" readonly>
+      <img class="ChannelImage" name="channel_image_${currentImageDataJSON.id}_${index}" id="${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" src="${channelRenderingURL}"/>
+      <div class="chartContainer" id="chartContainer_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" style="height: 37px; max-width: 57px; margin: 0px auto;"></div>
       <p>
-        <label for="minmaxPixelValues_${currentImageDataJSON.channels[index].label}">Channel ${currentImageDataJSON.channels[index].label}:</label>
-        <input type="text" id="minmaxPixelValues_${currentImageDataJSON.channels[index].label}" readonly style="border:0; color:#${currentImageDataJSON.channels[index].color}; font-weight:bold;">
+        <label for="minmaxPixelValues_${currentImageDataJSON.id}_${index}">Channel ${currentImageDataJSON.channels[index].label}:</label>
+        <input type="text" name="minmaxPixelValues_${currentImageDataJSON.id}_${index}" id="minmaxPixelValues_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" readonly style="border:0; color:#${currentImageDataJSON.channels[index].color}; font-weight:bold;">
       </p>
-      <span id="slider-range_${currentImageDataJSON.channels[index].label}" class="ui-slider-range" style="left: 0%; width: 40%;">
+      <span id="slider-range_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" class="ui-slider-range" style="left: 0%; width: 40%;">
       </span>
       <p>
-        <label for="checkbox_${currentImageDataJSON.channels[index].label}">Enable/Disable Channel:
-        <input name="active-or-not" type="checkbox" id="checkbox_${currentImageDataJSON.channels[index].label}" checked>
+        <label for="checkbox_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}">Enable/Disable Channel:
+        <input name="active-or-not_${currentImageDataJSON.id}_${index}" type="checkbox" id="checkbox_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" checked>
       </p>
-      <input name="color_${index}" class="ColorChanger" type="color" id="color_${currentImageDataJSON.channels[index].label}" value="#${currentImageDataJSON.channels[index].color}">
-      <select class="lut" name="lut_${index}" id="lut_${currentImageDataJSON.channels[index].label}"><option value=''>No custom LUT</option>${lutsHtml}</select>
+      <input name="color_${currentImageDataJSON.id}_${index}" class="ColorChanger" type="color" id="color_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" value="#${currentImageDataJSON.channels[index].color}">
+      <select class="lut" name="lut_${currentImageDataJSON.id}_${index}" id="lut_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}"><option value=''>No custom LUT</option>${lutsHtml}</select>
     </div>
     `
     return channelRenderingHTMLstring;
@@ -236,23 +237,29 @@ function generateResultImageHTML(currentImageDataJSON){
   var resultImageURL = updateResultImageURL(currentImageDataJSON);
 
   var resultRenderingHTMLstring = `
-    <div style="position:relative;" class="ResultTuner" id="tuner_result">
-      <img class="ResultImage" id="${currentImageDataJSON.id}" src="${resultImageURL}"/>
+    <div style="position:relative;" class="ResultTuner" id="tuner_result_${currentImageDataJSON.id}">
+      <input type="text" name="result" id="result_read_input_${currentImageDataJSON.id}" value="${currentImageDataJSON.meta.imageName}" readonly>
+      <img class="ResultImage" id="result_image_${currentImageDataJSON.id}" src="${resultImageURL}"/>
       <p>
-        <label for="ZdepthValue_${currentImageDataJSON.rdefs.defaultZ}">Profondeur Z: </label>
-        <input type="text" id="ZdepthValue_${currentImageDataJSON.rdefs.defaultZ}" readonly style="border:0; color:#000000; font-weight:bold;">
+        <label for="ZdepthValue_label_${currentImageDataJSON.id}">Profondeur Z: </label>
+        <input type="text" name="Zdepth" id="ZdepthValue_read_input_${currentImageDataJSON.id}" readonly style="border:0; color:#000000; font-weight:bold;">
+        <select class="z-project" name="z-project_${currentImageDataJSON.id}" id="z-project_${currentImageDataJSON.id}">
+          <option value="normal">No Z-projection</option>
+          <option value="intmean">Mean Z-projection</option>
+          <option value="intmax">Max Z-projection</option>
+        </select>
       </p>
       <span id="zdepth-slider_${currentImageDataJSON.id}" class="ui-slider-horizontal ui-corner-all ui-widget-header" style="left: 0%; width: 40%;">
       </span>
       <p>
-        <label for="TtimeValue_${currentImageDataJSON.rdefs.defaultT}">Temps T: </label>
-        <input type="text" id="TtimeValue_${currentImageDataJSON.rdefs.defaultT}" readonly style="border:0; color:#000000; font-weight:bold;">
+        <label for="TtimeValue_label_${currentImageDataJSON.id}">Temps T: </label>
+        <input type="text" name="Ttime" id="TtimeValue_read_input_${currentImageDataJSON.id}" readonly style="border:0; color:#000000; font-weight:bold;">
       </p>
       <span id="ttime-slider_${currentImageDataJSON.id}" class="ui-slider-horizontal ui-corner-all ui-widget-header" style="left: 0%; width: 40%;">
       </span>
       <p>
-        <label for"RealDynamicRange"> Select the real maximum dynamic range of your images: </label>
-        <select name="RealDynamicRange" id="RealDynamicRange">
+        <label for"RealDynamicRange_${currentImageDataJSON.id}"> Select the real maximum dynamic range of your images: </label>
+        <select class="RealDynamicRange" name="RealDynamicRange_${currentImageDataJSON.id}" id="RealDynamicRange_${currentImageDataJSON.id}">
           <option value="255"> 8-bits (256 values) </option>
           <option value="4095"> 12-bits (4096 values) </option>
           <option value="65535"> 16-bits (65536 values) </option>
@@ -260,66 +267,44 @@ function generateResultImageHTML(currentImageDataJSON){
           <option value="4294967295"> 32-bits (4294967296 values) </option>
         </select>
       </p>
+      <p>
+        <label for="transfer_tunings_button_${currentImageDataJSON.id}"> Apply these tunings to all selected images </label>
+        <button class="transfer_tunings_button" id="transfer_tunings_button_${currentImageDataJSON.id}" type="button">Apply</button>
+      </p>
     </div>
   `
   return resultRenderingHTMLstring;
 }
 
-function generateChannelButtons(currentImageDataJSON){
-  //console.log(currentImageDataJSON);
+function generateQuickFigure(currentImageDataJSON){
 
-  //Il est impossible de passer facilement du JSON à une fonction contenue dans un onclick donc on extrait les variables.
-  var numberOfChannels = currentImageDataJSON.channels.length;
-  var tunerLabels = [];
-  for(var index=0; index<numberOfChannels; index++){
-    var channelLabel = currentImageDataJSON.channels[index].label;
-    tunerLabels.push(channelLabel);
-  }
-  tunerLabels.push(currentImageDataJSON.id);
-  console.log(tunerLabels);
+  var resultImageURL = updateQuickFigureURL(currentImageDataJSON);
 
-  //Passer des fonctions via onclick est vraiment merdique.
-  //voir: https://github.com/riot/riot/issues/1001
-
-  var allChannelsButtonsHTMLstring = "";
-  for(var index=0; index<currentImageDataJSON.channels.length; index++){
-    var channelLabel = currentImageDataJSON.channels[index].label
-    var channelButtonHTMLstring = `
-      <button id="button_${currentImageDataJSON.channels[index].label}" onclick="">${currentImageDataJSON.channels[index].label}</button>
-    `
-    //hideShowTuningContent("${currentImageDataJSON.channels[index].label}")
-    //hideShowTuningContent(\''+tunerLabels+'\', channelLabel)
-    allChannelsButtonsHTMLstring = allChannelsButtonsHTMLstring + channelButtonHTMLstring;
-  }
-
-  var resultLabel = currentImageDataJSON.id;
-  var resultButtonString = `
-    <button id="button_result" onclick="">Result image</button>
+  var resultRenderingHTMLstring = `
+    <div style="position:relative;" class="QuickFigureTuner" id="tuner_quick_figure_${currentImageDataJSON.id}">
+      <img class="MontageImage" id="quick_figure_image_${currentImageDataJSON.id}" src="${resultImageURL}"/>
+    </div>
   `
-  //hideShowTuningContent("result")
-  //hideShowTuningContent(\'' + tunerLabels + '\', resultLabel)
-  allChannelsButtonsHTMLstring = allChannelsButtonsHTMLstring + resultButtonString;
-  console.log(allChannelsButtonsHTMLstring);
-  return allChannelsButtonsHTMLstring;
+  return resultRenderingHTMLstring;
 }
 
 
-function hideShowTuningContent(tunerLabels, channelIDstring){
-  //console.log(channelIDstring);
-  //console.log(currentImageDataJSON);
-  console.log(tunerLabels);
-  console.log(channelIDstring);
-  var filteredTunerLabels = tunerLabels.filter(function(value, index, arr){ //https://love2dev.com/blog/javascript-remove-from-array/
-    return value != channelIDstring;
-  });
-  var toShowDiv = document.getElementById("tuner_"+channelIDstring);
-  toShowDiv.style.display = "block";
-  for(var itemIndex=0; itemIndex<filteredTunerLabels.length; itemIndex++){
-    var toHideDiv = "tuner_"+filteredTunerLabels[itemIndex];
-    toHideDiv.style.display = "none";
+
+function updateQuickFigureURL(currentImageDataJSON){
+  var baseImageRenderingURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'render_split_channel/' + currentImageDataJSON.id + '/';
+  let channelZDepth = currentImageDataJSON.rdefs.defaultZ;
+  let channelTtime = currentImageDataJSON.rdefs.defaultT;
+
+  var quickFigureURL = baseImageRenderingURL+channelZDepth+"/"+channelTtime+"/?c=";
+  for(var index=0; index<currentImageDataJSON.channels.length; index++){
+    var channelTuningsURLchunk = makeChannelImage(currentImageDataJSON, index)
+    quickFigureURL+=channelTuningsURLchunk+",";
   }
+  quickFigureURL = quickFigureURL.substring(0, quickFigureURL.length-1);
+  //console.log("UPDATE_RESULT_IMAGE");
+  //console.log("QUICK_FIGURE_URL", quickFigureURL)
+  return quickFigureURL;
 }
-
 
 function updateResultImageURL(currentImageDataJSON){
   //Assemble the result image URL
@@ -327,13 +312,14 @@ function updateResultImageURL(currentImageDataJSON){
   let channelZDepth = currentImageDataJSON.rdefs.defaultZ;
   let channelTtime = currentImageDataJSON.rdefs.defaultT;
 
-  resultImageURL = baseImageRenderingURL+channelZDepth+"/"+channelTtime+"/?c=";
+  var resultImageURL = baseImageRenderingURL+channelZDepth+"/"+channelTtime+"/?c=";
   for(var index=0; index<currentImageDataJSON.channels.length; index++){
     var channelTuningsURLchunk = makeChannelImage(currentImageDataJSON, index)
     resultImageURL+=channelTuningsURLchunk+",";
   }
   resultImageURL = resultImageURL.substring(0, resultImageURL.length-1);
   //console.log("UPDATE_RESULT_IMAGE");
+  //console.log("RESULT_IMAGE_URL", resultImageURL)
   return resultImageURL;
 
 }
@@ -349,11 +335,12 @@ function updateChannelImageURL(currentImageDataJSON, index){
 }
 
 function updateChannelImage(currentImageDataJSON, index){
+  drawHistogram(currentImageDataJSON, index)
   updateChannelColor(currentImageDataJSON, index)
   var channelRenderingURL = updateChannelImageURL(currentImageDataJSON, index)
-  var imageIdentifier = "#"+currentImageDataJSON.channels[index].label;
-  var minmaxIdentifier = "#minmaxPixelValues_"+currentImageDataJSON.channels[index].label;
-  var lutChooserIdentifier = "lut_"+currentImageDataJSON.channels[index].label
+  var imageIdentifier = "#"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label;
+  var minmaxIdentifier = "#minmaxPixelValues_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label;
+  var lutChooserIdentifier = "lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label
   $(imageIdentifier).attr('src', channelRenderingURL);
   if(document.getElementById(lutChooserIdentifier).value == ""){
     $(minmaxIdentifier).attr('style', "border:0; color: #"+currentImageDataJSON.channels[index].color+"; font-weight:bold;")
@@ -370,9 +357,61 @@ function updateAllChannelsAndResultImage(currentImageDataJSON){
     updateChannelImage(currentImageDataJSON, index)
   }
   var resultImageURL = updateResultImageURL(currentImageDataJSON)
+  var quickFigureURL = updateQuickFigureURL(currentImageDataJSON)
   //Write the image in HTML
-  $(".ResultImage").attr('src', resultImageURL);
+  var resultImageIdentifier = "#result_image_"+currentImageDataJSON.id
+  var quickFigureImageIdentifier = "#quick_figure_image_"+currentImageDataJSON.id
+  $(resultImageIdentifier).attr('src', resultImageURL);
+  $(quickFigureImageIdentifier).attr('src', quickFigureURL);
 }
+
+function getChannelHistogramData(currentImageDataJSON, index){
+  let channelIndex = index+1;
+  //https://docs.openmicroscopy.org/omero/5.6.1/developers/Web/WebGateway.html
+  var baseHistogramURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'histogram_json/' + currentImageDataJSON.id + '/channel/' + channelIndex + '/?theT=' + currentImageDataJSON.rdefs.defaultT + '&theZ=' + currentImageDataJSON.rdefs.defaultZ + '&bins=' + currentImageDataJSON.pixel_range[1];
+}
+
+function drawHistogram(currentImageDataJSON, index){
+  //Get Data
+  let channelIndex = index+1;
+  //https://docs.openmicroscopy.org/omero/5.6.1/developers/Web/WebGateway.html
+  var baseHistogramURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'histogram_json/' + currentImageDataJSON.id + '/channel/' + channelIndex + '/?theT=' + currentImageDataJSON.rdefs.defaultT + '&theZ=' + currentImageDataJSON.rdefs.defaultZ + '&bins=' + currentImageDataJSON.pixel_range[1];
+
+  //https://canvasjs.com/javascript-charts/json-data-api-ajax-chart/
+  $.getJSON(baseHistogramURL, function (currentHistogramDataJSON) {
+    var dataPoints = [];
+	  for (var i = 0; i < currentHistogramDataJSON.data.length; i++) {
+		    dataPoints.push({
+	         //x: new Date(data[i].date),
+			     //y: data[i].units
+           x: i,
+           y: currentHistogramDataJSON.data[i]
+		    });
+	  }
+    //console.log(dataPoints);
+    var chartContainerIdentifier = "chartContainer_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label
+    var chart = new CanvasJS.Chart(chartContainerIdentifier, {
+  	   animationEnabled: true,
+  	   theme: "light2",
+  	   title: {
+  		     text: "Channel Histogram",
+           fontSize: 14
+  	   },
+  	   axisY: {
+  		     title: "Number of pixels",
+  		     titleFontSize: 12,
+  		     includeZero: true
+  	   },
+  	   data: [{
+  		     type: "column",
+  		     yValueFormatString: "#,### Units",
+  		     dataPoints: dataPoints
+  	   }]
+    });
+	  chart.render();
+  });
+}
+
 
 //Synchronous, useful for tests
 
@@ -398,7 +437,71 @@ function loadLUTs(){
   return currentLUTsJSON;
 }
 
+function getSelectedImagesIDs(currentEvent){
+  var imageIDvalues = [];
+  for(var i=1; i<currentEvent.target.children.length; i++){
+    imageIDvalues.push(currentEvent.target.children[i].value);
+  }
+  return imageIDvalues;
+}
 
+
+
+function modifySelectedImagesJSONs(listOfJSONs, currentImageDataJSON){
+  for(var i=0; i<listOfJSONs.length; i++){
+    listOfJSONs[i].pixel_range[0] = currentImageDataJSON.pixel_range[0];
+    listOfJSONs[i].pixel_range[1] = currentImageDataJSON.pixel_range[1];
+    listOfJSONs[i].channels = currentImageDataJSON.channels
+    updateAllChannelsAndResultImage(listOfJSONs[i])
+  }
+  imagesDivItems = document.getElementsByClassName("ImageDivItem")
+  console.log("imagesDivItems", imagesDivItems);
+
+  //Modifier les LUTs et la Dynamic range dans cette fonction
+  var chosenDynamicRange = document.getElementById("RealDynamicRange_"+currentImageDataJSON.id).value;
+  var selectedLutItems = []
+  for(var index=0; index<currentImageDataJSON.channels.length; index++){
+    var chosenLutItem = document.getElementById("lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label).value
+    selectedLutItems.push(chosenLutItem);
+  }
+
+  for(var indexDivImage=0; indexDivImage<imagesDivItems.length; indexDivImage++){
+    document.getElementById("RealDynamicRange_"+listOfJSONs[indexDivImage].id).value = chosenDynamicRange;
+    for(var indexSelectedLutItem=0; indexSelectedLutItem<selectedLutItems.length; indexSelectedLutItem++){
+      document.getElementById("lut_"+listOfJSONs[indexDivImage].id+"_"+listOfJSONs[indexDivImage].channels[indexSelectedLutItem].label).value = selectedLutItems[indexSelectedLutItem];
+    }
+  }
+  //console.log("Modified")
+  //console.log(listOfJSONs)
+}
+
+function getAllSelectedImagesJSONs(imageIDvalues){
+  var listOfJSONs = [];
+  for(var i=0; i<imageIDvalues.length; i++){
+    imageID = imageIDvalues[i];
+    imageJSON = loadImage(imageID);
+    listOfJSONs.push(imageJSON);
+  }
+  return listOfJSONs;
+}
+
+function generateImageDivsString(all_images, listOfJSONs, currentLUTsJSON){
+  var imageDivsString = "";
+  for(imageDivItemIndex=0; imageDivItemIndex<all_images.children.length; imageDivItemIndex++){
+    var imageHtmlItem = all_images.children[imageDivItemIndex];
+    var imageJSONitem = loadImage(imageHtmlItem.id)
+    listOfJSONs.push(imageJSONitem);
+    var beginningImageDivItem =`<div style="position:relative; display:none;" class="ImageDivItem" id="image_div_${imageHtmlItem.id}">`
+    var tuningThumbnailsHTMLlist = generateTuningThumbnailHTMLlist(imageJSONitem)
+    var resultRenderingHTMLstring = generateResultImageHTML(imageJSONitem);
+    var allChannelsHTMLstring = generateAllChannelsTuningHTML(imageJSONitem, currentLUTsJSON);
+    var quickFigureHTMLstring = generateQuickFigure(imageJSONitem);
+    var endingImageDivItem = '</div>'
+    var imageDivItemString = beginningImageDivItem+tuningThumbnailsHTMLlist+resultRenderingHTMLstring+allChannelsHTMLstring+quickFigureHTMLstring+endingImageDivItem;
+    imageDivsString = imageDivsString + imageDivItemString;
+  }
+  return imageDivsString;
+}
 
 //------Start------
 
@@ -424,83 +527,55 @@ projectsUrl += '?owner=' + PARAMS.EXP_ID;
 $(function () {
   // The currentImageDataJSON will be available anywhere inside this function...
   let currentImageDataJSON;
-
-  $("#Selected_images_dropdown").on('change', function (event) {
-    let imageId = event.target.value;
-    console.log('selected', imageId);
-
-    /* //Synchrone
-    var currentImageDataJSON = loadImage(imageId);
-    var currentLUTsJSON = loadLUTs();
-    jQuery(document).ready(function ($) { //Important pour affichage correct au chargement
-      var allChannelsButtonsHTMLstring = generateChannelButtons(currentImageDataJSON);
-      var resultRenderingHTMLstring = generateResultImageHTML(currentImageDataJSON);
-      var allChannelsHTMLstring = generateAllChannelsTuningHTML(currentImageDataJSON, currentLUTsJSON);
-      $("#ChannelsShowButtons").html(allChannelsButtonsHTMLstring);
-      $("#TuningItems").html(resultRenderingHTMLstring);
-      $("#TuningItems").html(allChannelsHTMLstring);
-      updateAllHTML(currentImageDataJSON)
-      console.log(currentImageDataJSON)
-    });
-    */
-    let imageDataURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'imgData/' + imageId + '/';
-    let lutsUrl = window.PARAMS.WEBGATEWAY_BASE_URL + 'luts/';
-    $.getJSON(lutsUrl, function (currentLUTsJSON) {
-      $.getJSON(imageDataURL, function (data) {
-        currentImageDataJSON = data;
-        //jQuery(document).ready(function ($) { //Important pour affichage correct au chargement
-          var tuningThumbnailsHTMLlist = generateTuningThumbnailHTMLlist(currentImageDataJSON)
-          var resultRenderingHTMLstring = generateResultImageHTML(currentImageDataJSON);
-          var allChannelsHTMLstring = generateAllChannelsTuningHTML(currentImageDataJSON, currentLUTsJSON);
-          var fullHTMLstring = tuningThumbnailsHTMLlist+resultRenderingHTMLstring+allChannelsHTMLstring;
-          //$("#TuningItems").html(tuningThumbnailsHTMLlist);
-          //$("#TuningItems").html(resultRenderingHTMLstring);
-          //$("#TuningItems").html(allChannelsHTMLstring);
-          $("#TuningItems").html(fullHTMLstring);
-          makeThumbnails();
-          updateZDepthTuningSlider(currentImageDataJSON);
-          updateTTimeTuningSlider(currentImageDataJSON)
-          for(var index=0; index<currentImageDataJSON.channels.length; index++){
-            updateAllChangers(currentImageDataJSON, index)
-            //updateChannelTuningSlider(currentImageDataJSON, index)
-          }
-        console.log('currentImageDataJSON', currentImageDataJSON);
+  let fullHTMLstring;
+  let imageIDvalues;
+  let listOfJSONs = [];
+  let lutsUrl = window.PARAMS.WEBGATEWAY_BASE_URL + 'luts/';
+  let all_images = document.getElementById("all_selected_images")
+  console.log("ALL_IMAGES", all_images);
+  //var currentLUTsJSON = loadLUTs();
+  $.getJSON(lutsUrl, function (currentLUTsJSON) {
+    imageDivsString = generateImageDivsString(all_images, listOfJSONs, currentLUTsJSON)
+    //console.log("List_of_JSONs", listOfJSONs)
+    $("#TuningItems").html(imageDivsString);
+    $("#Selected_images_dropdown").on('change', function (event) {
+      let imageId = event.target.value;
+      //console.log('selected', imageId);
+      for(var i=0; i<listOfJSONs.length; i++){
+        if(listOfJSONs[i].id == imageId){
+          currentImageDataJSON = listOfJSONs[i];
+          console.log("Selected_JSON", currentImageDataJSON)
+          $(".ImageDivItem").not("#image_div_"+imageId).hide();
+          $("#image_div_"+imageId).show();
+          $("#image_div_"+imageId).tabs()
+        }
+        //else{
+          //$(".ImageDivItem").hide();
+        //}
+        updateZDepthTuningSlider(currentImageDataJSON);
+        updateTTimeTuningSlider(currentImageDataJSON)
+        for(var index=0; index<currentImageDataJSON.channels.length; index++){
+          updateAllChangers(currentImageDataJSON, index)
+        }
         // Immediately show the initial state...
         updateAllChannelsAndResultImage(currentImageDataJSON)
-        //});
-      }); //Fin du getJSON LUT
-    }); //Fin du getJSON imageData
-  });
+      }
 
+      //https://stackoverflow.com/questions/34151201/jquery-bind-a-function-to-a-button-with-an-on-method
+      $("body").on("click", "#transfer_tunings_button_"+imageId, function(){
+        alert("Its working!!! "+imageId);
+        console.log('Applying to all images...')
+        modifySelectedImagesJSONs(listOfJSONs, currentImageDataJSON)
+      });
 
-  // setup listeners on any <select class='lut'> choosers that we may create later
-  // We bind ONE event listener to the #TuningItems element when the page loads.
-  // This will capture any events coming from LUT choosers
-  $("#TuningItems").on("change", "select.lut", function () {
-    console.log('select LUT...', currentImageDataJSON);
-    updateAllChannelsAndResultImage(currentImageDataJSON)
+      //Binding multiple events at once on the TuningItms block: http://jqfundamentals.com/chapter/events
+      $("#image_div_"+imageId).on("select.lut input.ColorChanger select.RealDynamicRange", function () {
+        console.log('Changing...', currentImageDataJSON);
+        updateAllChannelsAndResultImage(currentImageDataJSON);
+      });
+
+    });
   });
 });
 
-
-/*
-fetch(projectsUrl).then(rsp => rsp.json())
-    .then(data => {
-        let projectCount = data.meta.totalCount;
-        let projects = data.data;
-        console.log(projects);
-        // Render html...
-        let html = '<div>Total: ' + projectCount + ' projects</div>';
-
-        html += '<ul>';
-        html += projects.map(p => {
-            return '<li>' + p.Name + ' (ID: ' + p['@id'] + ')</li>';
-        }).join("");
-        html += '</ul>';
-
-        document.getElementById('projects').innerHTML = html;
-    });
-*/
-
-//Penser à https://jqueryui.com/tabs/ à la place des boutons pour les canaux.
-//Ajouter cases à cocher pour dire si channel visible ou pas.
+//Histogramme https://canvasjs.com/javascript-charts/json-data-api-ajax-chart/

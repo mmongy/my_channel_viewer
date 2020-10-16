@@ -1,0 +1,79 @@
+        <!--<input type="submit" value="Submit image" name="submit_image">-->
+        <img id="DisplayedImage" src="{% url 'web_render_image' image.id %}" />
+        <!--
+        {% for image in displayed_images %}
+            <img id="SelectedItems" src="{% url 'web_render_image' image.id %}" />
+        {% endfor %}
+        -->
+
+//document.getElementById("DisplayedImage").src="{% url 'web_render_image' iid=selection.value %}";
+
+
+//document.getElementById("DisplayedImage").src=stringifiedTargetURL;
+
+voir: https://stackoverflow.com/questions/20702379/how-to-get-django-form-value-in-javascript-without-saving-it-into-model/20702510
+https://stackoverflow.com/questions/17832194/get-javascript-variables-value-in-django-url-template-tag
+
+<option value="" selected disabled hidden>Choose here</option>
+
+
+var targetURL = "{% url 'web_render_image' % selection.value}" ;
+            console.log(targetURL);
+
+
+        <p>
+            Logged in as:
+            <!-- Django template renders values from context -->
+            <strong>{{ firstName }} {{ lastName }}</strong>
+        </p>
+
+        <p id="projects">
+            Loading Projects...
+        </p>
+        <!--
+        <form title="Select Project and Dataset">
+
+        Select image:
+        <select name="Image_dropdown" method="get" action="{% url 'index' %}">
+          {% for project in projects %}
+            <optgroup label={{ project.project_name }} value={{project.project_id}}>
+
+            {% for dataset in project.project_datasets %}
+              <optgroup label={{ dataset.dataset_name }} value={{dataset.dataset_id}}>
+                {% for image in dataset.dataset_images %}
+                  <option label={{image.image_name}} value={{image.image_id}}></option>
+                {% endfor %}
+              </optgroup>
+            {% endfor %}
+
+          </optgroup>
+          {% endfor %}
+        </select>
+        <input type="submit" value="Submit image" name="submit_image">
+        </form>
+        -->
+
+
+        <script type="text/javascript">
+          function getImageID(selection){
+            //alert(selection.value);
+            //window.getElementByID("DisplayedImage") = selection.value;
+            console.log(selection.value);
+            console.log(document.getElementById("DisplayedImage"))
+            return selection.value;
+          }
+        </script>
+
+
+        <!--
+        {% for image in selected_images %}
+          <img
+            id="DisplayedImage"
+            src="{% url 'web_render_image' image.id %}"
+          />
+        {% endfor %}
+        -->
+
+
+        <div id="TuningSliders">
+        </div>

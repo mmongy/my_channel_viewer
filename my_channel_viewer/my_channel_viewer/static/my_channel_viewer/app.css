@@ -8,77 +8,6 @@ table {
 }
 
 
-.ui-draggable, .ui-droppable {
-	background-position: top;
-}
-
-.ui-slider {
-	position: relative;
-	text-align: left;
-}
-.ui-slider .ui-slider-handle {
-	position: absolute;
-	z-index: 2;
-	width: 1.2em;
-	height: 1.2em;
-	cursor: default;
-	-ms-touch-action: none;
-	touch-action: none;
-}
-.ui-slider .ui-slider-range {
-	position: absolute;
-	z-index: 1;
-	font-size: .7em;
-	display: block;
-	border: 0;
-	background-position: 0 0;
-}
-
-/* support: IE8 - See #6727 */
-
-.ui-slider.ui-state-disabled .ui-slider-handle,
-.ui-slider.ui-state-disabled .ui-slider-range {
-	filter: inherit;
-}
-
-.ui-slider-horizontal {
-	height: .8em;
-}
-.ui-slider-horizontal .ui-slider-handle {
-	top: -.3em;
-	margin-left: -.6em;
-}
-.ui-slider-horizontal .ui-slider-range {
-	top: 0;
-	height: 100%;
-}
-.ui-slider-horizontal .ui-slider-range-min {
-	left: 0;
-}
-.ui-slider-horizontal .ui-slider-range-max {
-	right: 0;
-}
-
-.ui-slider-vertical {
-	width: .8em;
-	height: 100px;
-}
-.ui-slider-vertical .ui-slider-handle {
-	left: -.3em;
-	margin-left: 0;
-	margin-bottom: -.6em;
-}
-.ui-slider-vertical .ui-slider-range {
-	left: 0;
-	width: 100%;
-}
-.ui-slider-vertical .ui-slider-range-min {
-	bottom: 0;
-}
-.ui-slider-vertical .ui-slider-range-max {
-	top: 0;
-}
-
 .ui-slider-range, .ui-corner-all, .ui-widget-header {
   display: inline-block;
 }
@@ -94,62 +23,12 @@ table {
 
 /*http://jsfiddle.net/8JX4A/*/
 
-.ui-tabs {
-  position: relative;
-  padding: .2em;
-  transform: scale(1.0);
-  /*zoom: 1;*/
-} /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
 
-.ui-tabs .ui-tabs-nav {
-  margin: 0;
-  padding: .2em .2em 0;
-}
 
-.ui-tabs .ui-tabs-nav li {
-  list-style: none;
-  float: left;
-  position: relative;
-  top: 1px;
-  margin: 0 .2em 1px 0;
-  border-bottom: 0 !important;
-  padding: 0;
-  white-space: nowrap;
-}
-
-.ui-tabs .ui-tabs-nav li a {
-  float: left;
-  padding: .5em 1em;
-  text-decoration: none;
-}
-
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
-  margin-bottom: 0;
-  padding-bottom: 1px;
-}
-
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a {
-  cursor: text;
-}
-
-.ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {
-  cursor: pointer;
-  } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
-.ui-tabs .ui-tabs-panel {
-  display: block;
-  border-width: 0;
-  padding: 1em 1.4em;
-  background: none;
-}
-
-.ui-tabs .ui-tabs-hide {
-  display: none !important;
-}
-
-#TuningItems>div {
+#TuningItems>div { /* ">" est important pour éviter d'appliquer les réglages à tous les div. */
     margin: 80px 40px;
     padding: 25px;
-    /*background: #cccfff;*/
+    background: #cccfff;
 }
 
 /* Don't allow images to show full-size */
@@ -158,7 +37,25 @@ table {
 }
 
 .ChannelImage {
+  float:left;
   max-width: 200px;
+}
+
+.MontageImage{
+  max-width: 600px;
+}
+
+.ChannelTuner {
+  float:left;
+  display:inline-block;
+  /*display: flex;*/
+  justify-content: space-evenly;
+}
+
+.chartContainer {
+  float:right;
+  display:inline-block;
+  width: 5%;
 }
 
 #ChannelsImages img {

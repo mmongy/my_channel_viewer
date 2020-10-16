@@ -1,0 +1,198 @@
+/*
+function generateChannelButtons(currentImageDataJSON){
+  //console.log(currentImageDataJSON);
+
+  //Il est impossible de passer facilement du JSON à une fonction contenue dans un onclick donc on extrait les variables.
+  var numberOfChannels = currentImageDataJSON.channels.length;
+  var tunerLabels = [];
+  for(var index=0; index<numberOfChannels; index++){
+    var channelLabel = currentImageDataJSON.channels[index].label;
+    tunerLabels.push(channelLabel);
+  }
+  tunerLabels.push(currentImageDataJSON.id);
+  console.log(tunerLabels);
+
+  //Passer des fonctions via onclick est vraiment merdique.
+  //voir: https://github.com/riot/riot/issues/1001
+
+  var allChannelsButtonsHTMLstring = "";
+  for(var index=0; index<currentImageDataJSON.channels.length; index++){
+    var channelLabel = currentImageDataJSON.channels[index].label
+    var channelButtonHTMLstring = `
+      <button id="button_${currentImageDataJSON.channels[index].label}" onclick="">${currentImageDataJSON.channels[index].label}</button>
+    `
+    //hideShowTuningContent("${currentImageDataJSON.channels[index].label}")
+    //hideShowTuningContent(\''+tunerLabels+'\', channelLabel)
+    allChannelsButtonsHTMLstring = allChannelsButtonsHTMLstring + channelButtonHTMLstring;
+  }
+
+  //https://stackoverflow.com/questions/50943663/two-conflicting-buttons-inside-a-form
+  var resultLabel = currentImageDataJSON.id;
+  var resultButtonString = `
+    <button id="button_result" type="button" onclick="e.preventDefault()">Result image</button>
+  `
+  //hideShowTuningContent("result")
+  //hideShowTuningContent(\'' + tunerLabels + '\', resultLabel)
+  allChannelsButtonsHTMLstring = allChannelsButtonsHTMLstring + resultButtonString;
+  console.log(allChannelsButtonsHTMLstring);
+  return allChannelsButtonsHTMLstring;
+}
+
+
+function hideShowTuningContent(tunerLabels, channelIDstring){
+  //console.log(channelIDstring);
+  //console.log(currentImageDataJSON);
+  console.log(tunerLabels);
+  console.log(channelIDstring);
+  var filteredTunerLabels = tunerLabels.filter(function(value, index, arr){ //https://love2dev.com/blog/javascript-remove-from-array/
+    return value != channelIDstring;
+  });
+  var toShowDiv = document.getElementById("tuner_"+channelIDstring);
+  toShowDiv.style.display = "block";
+  for(var itemIndex=0; itemIndex<filteredTunerLabels.length; itemIndex++){
+    var toHideDiv = "tuner_"+filteredTunerLabels[itemIndex];
+    toHideDiv.style.display = "none";
+  }
+}
+*/
+
+/*
+function generateFullHTMLstring(currentImageDataJSON, currentLUTsJSON){
+  var tuningThumbnailsHTMLlist = generateTuningThumbnailHTMLlist(currentImageDataJSON)
+  var resultRenderingHTMLstring = generateResultImageHTML(currentImageDataJSON);
+  var allChannelsHTMLstring = generateAllChannelsTuningHTML(currentImageDataJSON, currentLUTsJSON);
+  var fullHTMLstring = tuningThumbnailsHTMLlist+resultRenderingHTMLstring+allChannelsHTMLstring;
+  return fullHTMLstring;
+}
+*/
+
+/*
+function modifySelectedImagesJSONs(imageIDvalues, currentImageDataJSON){
+  for(var i=0; i<imageIDvalues.length; i++){
+    loadImage(imageIDvalues[i]) = currentImageDataJSON;
+  }
+}
+*/
+
+
+
+  /*
+  $("#Selected_images_dropdown").on('change', function (event) {
+    console.log("EVENT", event)
+    imageIDvalues = getSelectedImagesIDs(event)
+    console.log(imageIDvalues);
+
+    //Synchrone, toutes les images, le switch (drop-down) est purement visuel
+    listOfJSONs = getAllSelectedImagesJSONs(imageIDvalues);
+    console.log("List of JSONs: ", listOfJSONs)
+    let imageId = event.target.value;
+    console.log('selected', imageId);
+    for(var i=0; i<listOfJSONs.length; i++){
+      if(listOfJSONs[i].id == imageId){
+        currentImageDataJSON = listOfJSONs[i];
+      }
+    }
+
+      jQuery(document).ready(function ($) { //Important pour affichage correct au chargement
+        fullHTMLstring = generateFullHTMLstring(currentImageDataJSON, currentLUTsJSON)
+        $("#TuningItems").html(fullHTMLstring);
+        $("#TuningItems").tabs()
+        updateZDepthTuningSlider(currentImageDataJSON);
+        updateTTimeTuningSlider(currentImageDataJSON)
+        for(var index=0; index<currentImageDataJSON.channels.length; index++){
+          updateAllChangers(currentImageDataJSON, index)
+        }
+        console.log('currentImageDataJSON', currentImageDataJSON);
+        // Immediately show the initial state...
+        updateAllChannelsAndResultImage(currentImageDataJSON)
+      });
+    */
+
+    /* //Synchrone
+    let imageId = event.target.value;
+    console.log('selected', imageId);
+    var currentImageDataJSON = loadImage(imageId);
+    var currentLUTsJSON = loadLUTs();
+    jQuery(document).ready(function ($) { //Important pour affichage correct au chargement
+    fullHTMLstring = generateFullHTMLstring(currentImageDataJSON, currentLUTsJSON)
+    $("#TuningItems").html(fullHTMLstring);
+    $("#TuningItems").tabs()
+    updateZDepthTuningSlider(currentImageDataJSON);
+    updateTTimeTuningSlider(currentImageDataJSON)
+    for(var index=0; index<currentImageDataJSON.channels.length; index++){
+      updateAllChangers(currentImageDataJSON, index)
+    }
+    console.log('currentImageDataJSON', currentImageDataJSON);
+    // Immediately show the initial state...
+    updateAllChannelsAndResultImage(currentImageDataJSON)
+    });
+    */
+
+    /* //Asynchrone
+    let imageId = event.target.value;
+    console.log('selected', imageId);
+    let imageDataURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'imgData/' + imageId + '/';
+    let lutsUrl = window.PARAMS.WEBGATEWAY_BASE_URL + 'luts/';
+    $.getJSON(lutsUrl, function (currentLUTsJSON) {
+      $.getJSON(imageDataURL, function (data) {
+        currentImageDataJSON = data;
+        fullHTMLstring = generateFullHTMLstring(currentImageDataJSON, currentLUTsJSON)
+        $("#TuningItems").html(fullHTMLstring);
+        $("#TuningItems").tabs();
+        updateZDepthTuningSlider(currentImageDataJSON);
+        updateTTimeTuningSlider(currentImageDataJSON);
+        for(var index=0; index<currentImageDataJSON.channels.length; index++){
+          updateAllChangers(currentImageDataJSON, index);
+        }
+        console.log('currentImageDataJSON', currentImageDataJSON);
+        // Immediately show the initial state...
+        updateAllChannelsAndResultImage(currentImageDataJSON);
+        $("#TuningItems").tabs('refresh');
+      }); //Fin du getJSON LUT
+    }); //Fin du getJSON imageData
+    */
+
+
+  //});
+
+
+  // setup listeners on any <select class='lut'> choosers that we may create later
+  // We bind ONE event listener to the #TuningItems element when the page loads.
+  // This will capture any events coming from LUT choosers
+
+
+  /*
+  $("#TuningItems").on("change", "", function () {
+    console.log('select Color...', currentImageDataJSON);
+    updateAllChannelsAndResultImage(currentImageDataJSON)
+  });
+
+
+  $(".transfer_tunings_button").on("click", function(){
+    //modifySelectedImagesJSONs(imageIDvalues, currentImageDataJSON);
+    console.log('Applying to all images...')
+    modifySelectedImagesJSONs(listOfJSONs, currentImageDataJSON)
+  });
+  */
+
+
+
+
+/*
+fetch(projectsUrl).then(rsp => rsp.json())
+    .then(data => {
+        let projectCount = data.meta.totalCount;
+        let projects = data.data;
+        console.log(projects);
+        // Render html...
+        let html = '<div>Total: ' + projectCount + ' projects</div>';
+
+        html += '<ul>';
+        html += projects.map(p => {
+            return '<li>' + p.Name + ' (ID: ' + p['@id'] + ')</li>';
+        }).join("");
+        html += '</ul>';
+
+        document.getElementById('projects').innerHTML = html;
+    });
+*/
