@@ -8,6 +8,7 @@
         <link rel="stylesheet" type="text/css" media="screen" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
         <script type="text/javascript">
             // Global variables, used by JavaScript code.
             window.PARAMS = {};
@@ -30,6 +31,12 @@
           <!-- hidden field with CSRF token -->
           {% csrf_token %}
 
+          <div id="all_selected_images" style="display: none;">
+            {% for image in selected_images %}
+              <img class="SelectedItems" src="{% url 'web_render_image' image.id %}" id="{{image.id}}"/>
+            {% endfor %}
+          </div>
+
           Select image to display:
           <select name="selected_image" id="Selected_images_dropdown" method="get" action="{% url 'index' %}">
             <option value="" selected disabled hidden>Choose here</option>
@@ -46,11 +53,15 @@
         -->
 
         <!-- When the user chooses an image, we load imgData and build channel controls here -->
-            <div id="TuningItems">
-            </div>
+          <div id="TuningItems">
+          </div>
 
-            <button type="submit">Submit</button>
-          </form>
+          <!--
+          <button type="submit">Submit</button>
+          -->
 
+          <!-- Test: extracted from base_custom_dialog.html -->
+          <input id="submit" type="submit" value="{% block submit_text %}Create Figure{% endblock %}" />
+        </form>
     </body>
 </html>
