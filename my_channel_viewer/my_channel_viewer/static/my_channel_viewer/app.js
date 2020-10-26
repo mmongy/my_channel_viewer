@@ -60,23 +60,29 @@ function updateChannelColor(currentImageDataJSON, index){
   currentImageDataJSON.channels[index].color = newColor
 }
 
-function updateColorChanger(currentImageDataJSON, index){
+function updateZProjectType(){
+  //var zProjectChooserIdentifier =
+}
+
+/*
+function updateColorChanger(currentImageDataJSON, index, originalDynamicRanges, imageIndex){
   var colorChangerIdentifier = "#color_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label
   $(colorChangerIdentifier).on("change", "input", function () { //Not working?
     //updateChannelAndResultImage(currentImageDataJSON, index)
-    updateAllChannelsAndResultImage(currentImageDataJSON)
+    renderAllChannelsAndResultImages(currentImageDataJSON, originalDynamicRanges, imageIndex)
   });
 }
 
-function updateLUTChanger(currentImageDataJSON, index){
+function updateLUTChanger(currentImageDataJSON, index, originalDynamicRanges, imageIndex){
   var lutChangerIdentifier = "#lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label
   $(lutChangerIdentifier).on("change", "select", function () { //Not working?
     //updateChannelAndResultImage(currentImageDataJSON, index)
-    updateAllChannelsAndResultImage(currentImageDataJSON)
+    renderAllChannelsAndResultImages(currentImageDataJSON, originalDynamicRanges, imageIndex)
   });
 }
+*/
 
-function updateZDepthTuningSlider(currentImageDataJSON){
+function updateZDepthTuningSlider(currentImageDataJSON, originalDynamicRanges, imageIndex){
   var sliderIdentifier = "#zdepth-slider_"+currentImageDataJSON.id;
   var valueVisualizerIdentifier = "#ZdepthValue_read_input_"+currentImageDataJSON.id;
   //jQuery(document).ready(function ($) {
@@ -94,14 +100,14 @@ function updateZDepthTuningSlider(currentImageDataJSON){
         //console.log(ui.values) //Faire le setPixelValue() ici
         $( valueVisualizerIdentifier ).val( ui.value );
         currentImageDataJSON.rdefs.defaultZ = ui.value;
-        updateAllChannelsAndResultImage(currentImageDataJSON)
+        renderAllChannelsAndResultImages(currentImageDataJSON, originalDynamicRanges, imageIndex)
       }
     });
     $( valueVisualizerIdentifier ).val( $( sliderIdentifier ).slider( "value" ) );
   //});
 }
 
-function updateTTimeTuningSlider(currentImageDataJSON){
+function updateTTimeTuningSlider(currentImageDataJSON, originalDynamicRanges, imageIndex){
   var sliderIdentifier = "#ttime-slider_"+currentImageDataJSON.id;
   var valueVisualizerIdentifier = "#TtimeValue_read_input_"+currentImageDataJSON.id;
   //jQuery(document).ready(function ($) {
@@ -119,16 +125,16 @@ function updateTTimeTuningSlider(currentImageDataJSON){
         //console.log(ui.values) //Faire le setPixelValue() ici
         $( valueVisualizerIdentifier ).val( ui.value );
         currentImageDataJSON.rdefs.defaultT = ui.value;
-        updateAllChannelsAndResultImage(currentImageDataJSON)
+        renderAllChannelsAndResultImages(currentImageDataJSON, originalDynamicRanges, imageIndex)
       }
     });
     $( valueVisualizerIdentifier ).val( $( sliderIdentifier ).slider( "value" ) );
   //});
 }
 
-function updateChannelTuningSlider(currentImageDataJSON, index){
-  var sliderIdentifier = "#slider-range_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label.toString();
-  var valueVisualizerIdentifier = "#minmaxPixelValues_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label.toString();
+function updateChannelTuningSlider(currentImageDataJSON, channelIndex, originalDynamicRanges, imageIndex){
+  var sliderIdentifier = "#slider-range_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[channelIndex].label.toString();
+  var valueVisualizerIdentifier = "#minmaxPixelValues_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[channelIndex].label.toString();
   //currentImageDataJSON.pixel_range[1] = document.getElementById("RealDynamicRange").value;
   //jQuery(document).ready(function ($) {
     $( sliderIdentifier ).slider({
@@ -136,7 +142,7 @@ function updateChannelTuningSlider(currentImageDataJSON, index){
         range: true,
         min: currentImageDataJSON.pixel_range[0],
         max: currentImageDataJSON.pixel_range[1],
-        values: [currentImageDataJSON.channels[index].window.min, currentImageDataJSON.channels[index].window.max],
+        values: [currentImageDataJSON.channels[channelIndex].window.min, currentImageDataJSON.channels[channelIndex].window.max],
         slide: function( event, ui ) {
           //console.log(event);
           //console.log(ui.values) //Faire le setPixelValue() ici
@@ -146,11 +152,11 @@ function updateChannelTuningSlider(currentImageDataJSON, index){
           //console.log(event);
           //console.log(ui.values) //Faire le setPixelValue() ici
           $( valueVisualizerIdentifier ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] )
-          currentImageDataJSON.channels[index].window.min = ui.values[ 0 ];
-          currentImageDataJSON.channels[index].window.max = ui.values[ 1 ];
-          currentImageDataJSON.pixel_range[1] = document.getElementById("RealDynamicRange_"+currentImageDataJSON.id).value
+          currentImageDataJSON.channels[channelIndex].window.min = ui.values[ 0 ];
+          currentImageDataJSON.channels[channelIndex].window.max = ui.values[ 1 ];
+          currentImageDataJSON.pixel_range[1] = parseInt(document.getElementById("RealDynamicRange_"+currentImageDataJSON.id).value, 10);
           $( sliderIdentifier ).slider( "option", "max", currentImageDataJSON.pixel_range[1] );
-          updateAllChannelsAndResultImage(currentImageDataJSON)
+          renderAllChannelsAndResultImages(currentImageDataJSON, originalDynamicRanges, imageIndex)
         }
     });
     //var max = $( sliderIdentifier ).slider( "option", "max" );
@@ -160,13 +166,14 @@ function updateChannelTuningSlider(currentImageDataJSON, index){
 }
 
 
-function updateAllChangers(currentImageDataJSON, index){
-  //jQuery(document).ready(function ($) {
-    console.log('updateAllChangers', currentImageDataJSON, index)
-    updateColorChanger(currentImageDataJSON, index);
-    updateLUTChanger(currentImageDataJSON, index);
-    updateChannelTuningSlider(currentImageDataJSON, index)
-  //});
+function updateAllChangers(currentImageDataJSON, originalDynamicRanges, imageIndex){
+  updateZDepthTuningSlider(currentImageDataJSON, originalDynamicRanges, imageIndex);
+  updateTTimeTuningSlider(currentImageDataJSON, originalDynamicRanges, imageIndex);
+  for(var channelIndex=0; channelIndex<currentImageDataJSON.channels.length; channelIndex++){
+    //updateColorChanger(currentImageDataJSON, channelIndex, originalDynamicRanges);
+    //updateLUTChanger(currentImageDataJSON, channelIndex, originalDynamicRanges);
+    updateChannelTuningSlider(currentImageDataJSON, channelIndex, originalDynamicRanges, imageIndex)
+  }
 }
 
 function generateTuningThumbnailHTMLlist(currentImageDataJSON){
@@ -199,25 +206,35 @@ function generateChannelTuningHTML(currentImageDataJSON, currentLUTsJSON, index)
     return `<option value="${lut.name}">${lut_name}</option>`;
   }).join("");
   //console.log("lutsHtml", lutsHtml)
-  var channelRenderingURL = updateChannelImageURL(currentImageDataJSON, index);
+  //var channelRenderingURL = updateChannelImageURL(currentImageDataJSON, index);
+  var channelRenderingURL = ""
 
   var channelRenderingHTMLstring = `
     <div style="position:relative;" class="ChannelTuner" id="tuner_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}">
-      <input type="text" name="channel_${currentImageDataJSON.id}_${index}" id="channel_${currentImageDataJSON.id}_${index}" value="${currentImageDataJSON.channels[index].label}" readonly>
-      <img class="ChannelImage" name="channel_image_${currentImageDataJSON.id}_${index}" id="${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" src="${channelRenderingURL}"/>
-      <div class="chartContainer" id="chartContainer_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" style="height: 37px; max-width: 57px; margin: 0px auto;"></div>
       <p>
-        <label for="minmaxPixelValues_${currentImageDataJSON.id}_${index}">Channel ${currentImageDataJSON.channels[index].label}:</label>
-        <input type="text" name="minmaxPixelValues_${currentImageDataJSON.id}_${index}" id="minmaxPixelValues_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" readonly style="border:0; color:#${currentImageDataJSON.channels[index].color}; font-weight:bold;">
+        <label for="channel_${currentImageDataJSON.id}_${index}">Channel ID:</label>
+        <input type="text" name="channel_${currentImageDataJSON.id}_${index}" id="channel_${currentImageDataJSON.id}_${index}" value="${currentImageDataJSON.channels[index].label}" readonly>
       </p>
-      <span id="slider-range_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" class="ui-slider-range" style="left: 0%; width: 40%;">
-      </span>
       <p>
-        <label for="checkbox_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}">Enable/Disable Channel:
-        <input name="active-or-not_${currentImageDataJSON.id}_${index}" type="checkbox" id="checkbox_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" checked>
+        <img class="ChannelImage" name="channel_image_${currentImageDataJSON.id}_${index}" id="${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" src="${channelRenderingURL}"/>
       </p>
-      <input name="color_${currentImageDataJSON.id}_${index}" class="ColorChanger" type="color" id="color_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" value="#${currentImageDataJSON.channels[index].color}">
-      <select class="lut" name="lut_${currentImageDataJSON.id}_${index}" id="lut_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}"><option value=''>No custom LUT</option>${lutsHtml}</select>
+      <div class="ChannelTuningArtifacts">
+        <p>
+          <label for="minmaxPixelValues_${currentImageDataJSON.id}_${index}">Channel ${currentImageDataJSON.channels[index].label} min-max pixel values:</label>
+          <input type="text" name="minmaxPixelValues_${currentImageDataJSON.id}_${index}" id="minmaxPixelValues_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" value="${currentImageDataJSON.channels[index].window.min} - ${currentImageDataJSON.channels[index].window.max}" readonly style="border:0; color:#${currentImageDataJSON.channels[index].color}; font-weight:bold;">
+        </p>
+        <span id="slider-range_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" class="ui-slider-range" style="left: 0%; width: 100%;">
+        </span>
+        <p>
+          <label for="checkbox_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}">Enable/Disable Channel:
+          <input name="active-or-not_${currentImageDataJSON.id}_${index}" type="checkbox" id="checkbox_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" checked>
+        </p>
+        <p>
+          <input name="color_${currentImageDataJSON.id}_${index}" class="ColorChanger" type="color" id="color_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}" value="#${currentImageDataJSON.channels[index].color}">
+          <select class="lut" name="lut_${currentImageDataJSON.id}_${index}" id="lut_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}"><option value=''>No custom LUT</option>${lutsHtml}</select>
+        </p>
+      </div>
+      <div class="chartContainer" id="chartContainer_${currentImageDataJSON.id}_${currentImageDataJSON.channels[index].label}"></div>
     </div>
     `
     return channelRenderingHTMLstring;
@@ -234,43 +251,53 @@ function generateAllChannelsTuningHTML(currentImageDataJSON, currentLUTsJSON){
 
 function generateResultImageHTML(currentImageDataJSON){
 
-  var resultImageURL = updateResultImageURL(currentImageDataJSON);
+  //var resultImageURL = updateResultImageURL(currentImageDataJSON);
+  var resultImageURL = ""
 
   var resultRenderingHTMLstring = `
     <div style="position:relative;" class="ResultTuner" id="tuner_result_${currentImageDataJSON.id}">
-      <input type="text" name="result" id="result_read_input_${currentImageDataJSON.id}" value="${currentImageDataJSON.meta.imageName}" readonly>
+      <p>
+        <label for="result">Image ID:</label>
+        <input type="text" name="result" id="result_read_input_${currentImageDataJSON.id}" value="${currentImageDataJSON.id}" readonly>
+      </p>
       <img class="ResultImage" id="result_image_${currentImageDataJSON.id}" src="${resultImageURL}"/>
-      <p>
-        <label for="ZdepthValue_label_${currentImageDataJSON.id}">Profondeur Z: </label>
-        <input type="text" name="Zdepth" id="ZdepthValue_read_input_${currentImageDataJSON.id}" readonly style="border:0; color:#000000; font-weight:bold;">
-        <select class="z-project" name="z-project_${currentImageDataJSON.id}" id="z-project_${currentImageDataJSON.id}">
-          <option value="normal">No Z-projection</option>
-          <option value="intmean">Mean Z-projection</option>
-          <option value="intmax">Max Z-projection</option>
-        </select>
-      </p>
-      <span id="zdepth-slider_${currentImageDataJSON.id}" class="ui-slider-horizontal ui-corner-all ui-widget-header" style="left: 0%; width: 40%;">
-      </span>
-      <p>
-        <label for="TtimeValue_label_${currentImageDataJSON.id}">Temps T: </label>
-        <input type="text" name="Ttime" id="TtimeValue_read_input_${currentImageDataJSON.id}" readonly style="border:0; color:#000000; font-weight:bold;">
-      </p>
-      <span id="ttime-slider_${currentImageDataJSON.id}" class="ui-slider-horizontal ui-corner-all ui-widget-header" style="left: 0%; width: 40%;">
-      </span>
-      <p>
-        <label for"RealDynamicRange_${currentImageDataJSON.id}"> Select the real maximum dynamic range of your images: </label>
-        <select class="RealDynamicRange" name="RealDynamicRange_${currentImageDataJSON.id}" id="RealDynamicRange_${currentImageDataJSON.id}">
-          <option value="255"> 8-bits (256 values) </option>
-          <option value="4095"> 12-bits (4096 values) </option>
-          <option value="65535"> 16-bits (65536 values) </option>
-          <option value="16777215"> 24-bits (16777216 values) </option>
-          <option value="4294967295"> 32-bits (4294967296 values) </option>
-        </select>
-      </p>
-      <p>
-        <label for="transfer_tunings_button_${currentImageDataJSON.id}"> Apply these tunings to all selected images </label>
-        <button class="transfer_tunings_button" id="transfer_tunings_button_${currentImageDataJSON.id}" type="button">Apply</button>
-      </p>
+      <div class="ResultTuningArtifacts">
+        <p>
+          <label for="ZdepthValue_label_${currentImageDataJSON.id}">Profondeur Z: </label>
+          <input type="text" name="ZdepthValue_label_${currentImageDataJSON.id}" id="ZdepthValue_read_input_${currentImageDataJSON.id}" value="${currentImageDataJSON.rdefs.defaultZ}" readonly style="border:0; color:#000000; font-weight:bold;">
+          <select class="z-project" name="z-project_${currentImageDataJSON.id}" id="z-project_${currentImageDataJSON.id}">
+            <option value="normal">No Z-projection</option>
+            <option value="intmean">Mean Z-projection</option>
+            <option value="intmax">Max Z-projection</option>
+          </select>
+        </p>
+        <span id="zdepth-slider_${currentImageDataJSON.id}" class="ui-slider-horizontal ui-corner-all ui-widget-header" style="left: 0%; width: 100%;">
+        </span>
+        <p>
+          <label for="TtimeValue_label_${currentImageDataJSON.id}">Temps T: </label>
+          <input type="text" name="TtimeValue_label_${currentImageDataJSON.id}" id="TtimeValue_read_input_${currentImageDataJSON.id}" value="${currentImageDataJSON.rdefs.defaultT}" readonly style="border:0; color:#000000; font-weight:bold;">
+        </p>
+        <span id="ttime-slider_${currentImageDataJSON.id}" class="ui-slider-horizontal ui-corner-all ui-widget-header" style="left: 0%; width: 100%;">
+        </span>
+        <p>
+          <label for"RealDynamicRange_${currentImageDataJSON.id}"> Select the real maximum dynamic range of your images: </label>
+          <select class="RealDynamicRange" name="RealDynamicRange_${currentImageDataJSON.id}" id="RealDynamicRange_${currentImageDataJSON.id}">
+            <option value=${255}> 8-bits (256 values) </option>
+            <option value=${1023}> 10-bits (1024 values) </option>
+            <option value=${4095}> 12-bits (4096 values) </option>
+            <option value=${16383}> 14-bits (16384 values) </option>
+            <option value=${65535}> 16-bits (65536 values) </option>
+            <option value=${262143}> 18-bits (262144 values) </option>
+            <option value=${1048575}> 20-bits (1048576 values) </option>
+            <option value=${16777215}> 24-bits (16777216 values) </option>
+            <option value=${4294967295}> 32-bits (4294967296 values) </option>
+          </select>
+        </p>
+        <p>
+          <label for="transfer_tunings_button_${currentImageDataJSON.id}"> Apply these tunings and the channels tunings to all selected images </label>
+          <button class="transfer_tunings_button" id="transfer_tunings_button_${currentImageDataJSON.id}" type="button">Apply</button>
+        </p>
+      </div>
     </div>
   `
   return resultRenderingHTMLstring;
@@ -278,10 +305,11 @@ function generateResultImageHTML(currentImageDataJSON){
 
 function generateQuickFigure(currentImageDataJSON){
 
-  var resultImageURL = updateQuickFigureURL(currentImageDataJSON);
+  //var resultImageURL = updateQuickFigureURL(currentImageDataJSON);
+  var resultImageURL = ""
 
   var resultRenderingHTMLstring = `
-    <div style="position:relative;" class="QuickFigureTuner" id="tuner_quick_figure_${currentImageDataJSON.id}">
+    <div class="QuickFigureTuner" id="tuner_quick_figure_${currentImageDataJSON.id}">
       <img class="MontageImage" id="quick_figure_image_${currentImageDataJSON.id}" src="${resultImageURL}"/>
     </div>
   `
@@ -318,6 +346,7 @@ function updateResultImageURL(currentImageDataJSON){
     resultImageURL+=channelTuningsURLchunk+",";
   }
   resultImageURL = resultImageURL.substring(0, resultImageURL.length-1);
+  resultImageURL = resultImageURL+"&p="+currentImageDataJSON.rdefs.projection;
   //console.log("UPDATE_RESULT_IMAGE");
   //console.log("RESULT_IMAGE_URL", resultImageURL)
   return resultImageURL;
@@ -334,16 +363,16 @@ function updateChannelImageURL(currentImageDataJSON, index){
   return channelRenderingURL;
 }
 
-function updateChannelImage(currentImageDataJSON, index){
-  drawHistogram(currentImageDataJSON, index)
-  updateChannelColor(currentImageDataJSON, index)
-  var channelRenderingURL = updateChannelImageURL(currentImageDataJSON, index)
-  var imageIdentifier = "#"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label;
-  var minmaxIdentifier = "#minmaxPixelValues_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label;
-  var lutChooserIdentifier = "lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label
+function updateChannelImage(currentImageDataJSON, channelIndex, imageIndex){
+  //drawHistogram(currentImageDataJSON, channelIndex, originalDynamicRanges, imageIndex)
+  updateChannelColor(currentImageDataJSON, channelIndex)
+  var channelRenderingURL = updateChannelImageURL(currentImageDataJSON, channelIndex)
+  var imageIdentifier = "#"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[channelIndex].label;
+  var minmaxIdentifier = "#minmaxPixelValues_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[channelIndex].label;
+  var lutChooserIdentifier = "lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[channelIndex].label
   $(imageIdentifier).attr('src', channelRenderingURL);
   if(document.getElementById(lutChooserIdentifier).value == ""){
-    $(minmaxIdentifier).attr('style', "border:0; color: #"+currentImageDataJSON.channels[index].color+"; font-weight:bold;")
+    $(minmaxIdentifier).attr('style', "border:0; color: #"+currentImageDataJSON.channels[channelIndex].color+"; font-weight:bold;")
   }
   if(document.getElementById(lutChooserIdentifier).value != ""){
     $(minmaxIdentifier).attr('style', "border:0; color: #000000; font-weight:bold;")
@@ -352,9 +381,10 @@ function updateChannelImage(currentImageDataJSON, index){
 
 }
 
-function updateAllChannelsAndResultImage(currentImageDataJSON){
-  for(var index=0; index<currentImageDataJSON.channels.length; index++){
-    updateChannelImage(currentImageDataJSON, index)
+function renderAllChannelsAndResultImages(currentImageDataJSON, originalDynamicRanges, imageIndex){
+  for(var channelIndex=0; channelIndex<currentImageDataJSON.channels.length; channelIndex++){
+    updateChannelImage(currentImageDataJSON, channelIndex)
+    drawHistogram(currentImageDataJSON, channelIndex, originalDynamicRanges, imageIndex)
   }
   var resultImageURL = updateResultImageURL(currentImageDataJSON)
   var quickFigureURL = updateQuickFigureURL(currentImageDataJSON)
@@ -365,22 +395,17 @@ function updateAllChannelsAndResultImage(currentImageDataJSON){
   $(quickFigureImageIdentifier).attr('src', quickFigureURL);
 }
 
-function getChannelHistogramData(currentImageDataJSON, index){
-  let channelIndex = index+1;
-  //https://docs.openmicroscopy.org/omero/5.6.1/developers/Web/WebGateway.html
-  var baseHistogramURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'histogram_json/' + currentImageDataJSON.id + '/channel/' + channelIndex + '/?theT=' + currentImageDataJSON.rdefs.defaultT + '&theZ=' + currentImageDataJSON.rdefs.defaultZ + '&bins=' + currentImageDataJSON.pixel_range[1];
-}
 
-function drawHistogram(currentImageDataJSON, index){
+function drawHistogram(currentImageDataJSON, channelIndex, originalDynamicRanges, imageIndex){
   //Get Data
-  let channelIndex = index+1;
   //https://docs.openmicroscopy.org/omero/5.6.1/developers/Web/WebGateway.html
-  var baseHistogramURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'histogram_json/' + currentImageDataJSON.id + '/channel/' + channelIndex + '/?theT=' + currentImageDataJSON.rdefs.defaultT + '&theZ=' + currentImageDataJSON.rdefs.defaultZ + '&bins=' + currentImageDataJSON.pixel_range[1];
-
+  var baseHistogramURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'histogram_json/' + currentImageDataJSON.id + '/channel/' + channelIndex + '/?theT=' + currentImageDataJSON.rdefs.defaultT + '&theZ=' + currentImageDataJSON.rdefs.defaultZ + '&bins=' + originalDynamicRanges[imageIndex];
+  //console.log("baseHistogramURL", baseHistogramURL)
   //https://canvasjs.com/javascript-charts/json-data-api-ajax-chart/
-  $.getJSON(baseHistogramURL, function (currentHistogramDataJSON) {
+  var currentHistogramDataJSON = getJSONcontent(baseHistogramURL)
+  //$.getJSON(baseHistogramURL, function (currentHistogramDataJSON) {
     var dataPoints = [];
-	  for (var i = 0; i < currentHistogramDataJSON.data.length; i++) {
+	  for (var i = 0; i < currentImageDataJSON.pixel_range[1]; i++) { //Remplacer currentHistogramDataJSON.data.length par currentImageDataJSON.pixel_range[1] ?
 		    dataPoints.push({
 	         //x: new Date(data[i].date),
 			     //y: data[i].units
@@ -389,7 +414,7 @@ function drawHistogram(currentImageDataJSON, index){
 		    });
 	  }
     //console.log(dataPoints);
-    var chartContainerIdentifier = "chartContainer_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label
+    var chartContainerIdentifier = "chartContainer_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[channelIndex].label
     var chart = new CanvasJS.Chart(chartContainerIdentifier, {
   	   animationEnabled: true,
   	   theme: "light2",
@@ -408,10 +433,10 @@ function drawHistogram(currentImageDataJSON, index){
   		     dataPoints: dataPoints
   	   }]
     });
+    console.log("CHART", chart);
 	  chart.render();
-  });
+  //});
 }
-
 
 //Synchronous, useful for tests
 
@@ -420,7 +445,20 @@ function getJSONcontent(wantedURL){ //https://stackoverflow.com/questions/420064
       url: wantedURL,
       async: false
    }).responseText;
+   console.log("JSON", value)
    return JSON.parse(value);
+}
+
+function loadHistogramData(currentImageDataJSON){
+  var currentHistogramDataJSONs = [];
+  //let channelIndex = index+1;
+  //https://docs.openmicroscopy.org/omero/5.6.1/developers/Web/WebGateway.html
+  for(var index=0; index<currentImageDataJSON.channels.length; index++){
+    var baseHistogramURL = window.PARAMS.WEBGATEWAY_BASE_URL + 'histogram_json/' + currentImageDataJSON.id + '/channel/' + index + '/?theT=' + currentImageDataJSON.rdefs.defaultT + '&theZ=' + currentImageDataJSON.rdefs.defaultZ + '&bins=' + currentImageDataJSON.pixel_range[1];
+    var currentHistogramJSON = getJSONcontent(baseHistogramURL)
+    currentHistogramDataJSONs.push(currentHistogramJSON);
+  };
+  return currentHistogramDataJSONs;
 }
 
 function loadImage(imageId) {
@@ -447,12 +485,12 @@ function getSelectedImagesIDs(currentEvent){
 
 
 
-function modifySelectedImagesJSONs(listOfJSONs, currentImageDataJSON){
-  for(var i=0; i<listOfJSONs.length; i++){
-    listOfJSONs[i].pixel_range[0] = currentImageDataJSON.pixel_range[0];
-    listOfJSONs[i].pixel_range[1] = currentImageDataJSON.pixel_range[1];
-    listOfJSONs[i].channels = currentImageDataJSON.channels
-    updateAllChannelsAndResultImage(listOfJSONs[i])
+function modifySelectedImagesJSONs(listOfJSONs, currentImageDataJSON, originalDynamicRanges){
+  for(var imageIndex=0; imageIndex<listOfJSONs.length; imageIndex++){
+    listOfJSONs[imageIndex].pixel_range[0] = currentImageDataJSON.pixel_range[0];
+    listOfJSONs[imageIndex].pixel_range[1] = currentImageDataJSON.pixel_range[1];
+    listOfJSONs[imageIndex].channels = currentImageDataJSON.channels
+    renderAllChannelsAndResultImages(listOfJSONs[imageIndex], originalDynamicRanges, imageIndex)
   }
   imagesDivItems = document.getElementsByClassName("ImageDivItem")
   console.log("imagesDivItems", imagesDivItems);
@@ -460,8 +498,8 @@ function modifySelectedImagesJSONs(listOfJSONs, currentImageDataJSON){
   //Modifier les LUTs et la Dynamic range dans cette fonction
   var chosenDynamicRange = document.getElementById("RealDynamicRange_"+currentImageDataJSON.id).value;
   var selectedLutItems = []
-  for(var index=0; index<currentImageDataJSON.channels.length; index++){
-    var chosenLutItem = document.getElementById("lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[index].label).value
+  for(var channelIndex=0; channelIndex<currentImageDataJSON.channels.length; channelIndex++){
+    var chosenLutItem = document.getElementById("lut_"+currentImageDataJSON.id+"_"+currentImageDataJSON.channels[channelIndex].label).value
     selectedLutItems.push(chosenLutItem);
   }
 
@@ -485,13 +523,14 @@ function getAllSelectedImagesJSONs(imageIDvalues){
   return listOfJSONs;
 }
 
-function generateImageDivsString(all_images, listOfJSONs, currentLUTsJSON){
+function generateImageDivsString(all_images, listOfJSONs, currentLUTsJSON, originalDynamicRanges){
   var imageDivsString = "";
   for(imageDivItemIndex=0; imageDivItemIndex<all_images.children.length; imageDivItemIndex++){
     var imageHtmlItem = all_images.children[imageDivItemIndex];
     var imageJSONitem = loadImage(imageHtmlItem.id)
     listOfJSONs.push(imageJSONitem);
-    var beginningImageDivItem =`<div style="position:relative; display:none;" class="ImageDivItem" id="image_div_${imageHtmlItem.id}">`
+    originalDynamicRanges.push(imageJSONitem.pixel_range[1])
+    var beginningImageDivItem =`<div style="display:none;" class="ImageDivItem" id="image_div_${imageHtmlItem.id}">`
     var tuningThumbnailsHTMLlist = generateTuningThumbnailHTMLlist(imageJSONitem)
     var resultRenderingHTMLstring = generateResultImageHTML(imageJSONitem);
     var allChannelsHTMLstring = generateAllChannelsTuningHTML(imageJSONitem, currentLUTsJSON);
@@ -527,54 +566,57 @@ projectsUrl += '?owner=' + PARAMS.EXP_ID;
 $(function () {
   // The currentImageDataJSON will be available anywhere inside this function...
   let currentImageDataJSON;
-  let fullHTMLstring;
-  let imageIDvalues;
-  let listOfJSONs = [];
+  let imageId;
+  let imageIndex;
+  let imageDivsString;
+  let listOfImageJSONs = [];
+  let listOfHistogramJSONs = [];
+  let originalDynamicRanges = [];
+
   let lutsUrl = window.PARAMS.WEBGATEWAY_BASE_URL + 'luts/';
   let all_images = document.getElementById("all_selected_images")
   console.log("ALL_IMAGES", all_images);
   //var currentLUTsJSON = loadLUTs();
   $.getJSON(lutsUrl, function (currentLUTsJSON) {
-    imageDivsString = generateImageDivsString(all_images, listOfJSONs, currentLUTsJSON)
-    //console.log("List_of_JSONs", listOfJSONs)
+    imageDivsString = generateImageDivsString(all_images, listOfImageJSONs, currentLUTsJSON, originalDynamicRanges)
+    console.log("List_of_JSONs", listOfImageJSONs)
+    console.log("originalDynamicRanges", originalDynamicRanges)
+    console.log("window.PARAMS", window.PARAMS)
+    console.log("base_URL", window.PARAMS.WEBGATEWAY_BASE_URL)
     $("#TuningItems").html(imageDivsString);
+
     $("#Selected_images_dropdown").on('change', function (event) {
-      let imageId = event.target.value;
-      //console.log('selected', imageId);
-      for(var i=0; i<listOfJSONs.length; i++){
-        if(listOfJSONs[i].id == imageId){
-          currentImageDataJSON = listOfJSONs[i];
-          console.log("Selected_JSON", currentImageDataJSON)
-          $(".ImageDivItem").not("#image_div_"+imageId).hide();
-          $("#image_div_"+imageId).show();
-          $("#image_div_"+imageId).tabs()
-        }
-        //else{
-          //$(".ImageDivItem").hide();
-        //}
-        updateZDepthTuningSlider(currentImageDataJSON);
-        updateTTimeTuningSlider(currentImageDataJSON)
-        for(var index=0; index<currentImageDataJSON.channels.length; index++){
-          updateAllChangers(currentImageDataJSON, index)
-        }
-        // Immediately show the initial state...
-        updateAllChannelsAndResultImage(currentImageDataJSON)
-      }
+      //Asynchrone
+      imageId = event.target.value;
+      imageIndex = event.target.selectedIndex-1;
+      console.log("event.target.realIndex", imageIndex)
+      console.log('selected', imageId);
+      currentImageDataJSON = listOfImageJSONs[imageIndex]
+      //console.log("Selected_JSON", currentImageDataJSON)
+      $(".ImageDivItem").not("#image_div_"+imageId).hide();
+      $("#image_div_"+imageId).show();
+      $("#image_div_"+imageId).tabs()
+      updateAllChangers(currentImageDataJSON, originalDynamicRanges, imageIndex);
+      //console.log('currentImageDataJSON', currentImageDataJSON);
+      // Immediately show the initial state...
+      renderAllChannelsAndResultImages(currentImageDataJSON, originalDynamicRanges, imageIndex);
 
       //https://stackoverflow.com/questions/34151201/jquery-bind-a-function-to-a-button-with-an-on-method
       $("body").on("click", "#transfer_tunings_button_"+imageId, function(){
         alert("Its working!!! "+imageId);
         console.log('Applying to all images...')
-        modifySelectedImagesJSONs(listOfJSONs, currentImageDataJSON)
-      });
-
-      //Binding multiple events at once on the TuningItms block: http://jqfundamentals.com/chapter/events
-      $("#image_div_"+imageId).on("select.lut input.ColorChanger select.RealDynamicRange", function () {
-        console.log('Changing...', currentImageDataJSON);
-        updateAllChannelsAndResultImage(currentImageDataJSON);
+        modifySelectedImagesJSONs(listOfImageJSONs, currentImageDataJSON, originalDynamicRanges)
       });
 
     });
+
+    //Binding multiple events at once on the TuningItms block: http://jqfundamentals.com/chapter/events
+    $(".ImageDivItem").on("select.lut input.ColorChanger select.RealDynamicRange", function () {
+      console.log('Changing...', currentImageDataJSON);
+      renderAllChannelsAndResultImages(currentImageDataJSON, originalDynamicRanges, imageIndex);
+    });
+
+    //Souci dans views.py avec minmax, zdepth et ttime. Voir les sliders de réglages
   });
 });
 

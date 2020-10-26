@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
@@ -190,7 +191,8 @@ def get_panel_json(request, image, x, y, width, height, c_index=None):
     channels = []
     for ch_index in range(image.getSizeC()):
         channel_dict = {}
-        minmaxPixelValues = request.POST.get('minmaxPixelValues_%s' % ch_index).split(" - ")
+        minmaxPixelValuesString = request.POST.get('minmaxPixelValues_'+str(image.id)+'_'+str(ch_index))
+        minmaxPixelValues = minmaxPixelValuesString.split(" - ")
         channel_dict['label'] = request.POST.get('channel_%s' % ch_index)
         channel_dict['color'] = getRealColor(ch_index, request)
         channel_dict['active'] = getActiveBoolean(ch_index, request)
@@ -198,7 +200,7 @@ def get_panel_json(request, image, x, y, width, height, c_index=None):
             'min': minmaxPixelValues[0],
             'max': minmaxPixelValues[1],
             'start': 0,
-            'end': int(request.POST.get('RealDynamicRange'))}
+            'end': int(request.POST.get('RealDynamicRange_'+str(image.id)))}
         #context['color_%s' % ch_index] = color
         #channel_lut = request.POST.get('lut_%s' % ch_index)
         #context['lut_%s' % ch_index] = lut
@@ -247,7 +249,7 @@ def create_omero_figure_from_image(conn, image, request):
     context = {}
 
     context['Row_Labels'] = 'Name'
-    context['Figure_Name'] = 'default'
+    context['Figure_Name'] = image.getName()
     context['selected_image'] = image
     print("CONTEXT", context)
     figure_name = context['Figure_Name']
@@ -297,23 +299,41 @@ def handle_submit(request, conn=None, **kwargs):
     print("REQUEST_BODY", request.body)
     print("REQUEST_POST", request.POST)
     print("REQUEST_GET", request.GET) #vide
-
-    selected_image = request.POST.get('selected_image')
-    print('selected_image', selected_image)
     print("CONNECTION", conn.getObjects('Project'))
-    image = conn.getObject('Image', selected_image)
-    print("IMAGE_OBJECT", image)
+
+    context = {}
+    figures_links = []
+    host = request.get_host() #https://stackoverflow.com/questions/4093999/how-to-use-django-to-get-the-name-for-the-host-server
+    print("HOST", host)
+    URL_base = "/figure/file/"
 
     dataTypes = [rstring('Image')]
     labelTypes = [rstring('Name'), rstring('Tags')]
 
-    #client = omero.webclient(omero.ibl.local)
+    selected_image = request.POST.get('selected_image')
+    print('selected_image', selected_image)
 
-    figure_id = create_omero_figure_from_image(conn, image, request)
-    message = "Created figure: %s" % figure_id
-    #client.setOutput("Message", rstring(message))
-    print(message)
-    return HttpResponse("Thankyou")
+    #image = conn.getObject('Image', selected_image)
+    print("selected_images", request.POST.getlist('result')) #https://code.djangoproject.com/ticket/1130
+    for imageIndex in range(len(request.POST.getlist('result'))):
+        image_identifier = int(request.POST.getlist('result')[imageIndex])
+        print("image_identifier", image_identifier)
+        image = conn.getObject('Image', image_identifier)
+        print("IMAGE_OBJECT", image)
+        #client = omero.webclient(omero.ibl.local)
+        figure_id = create_omero_figure_from_image(conn, image, request)
+        message = "Created figure: %s" % figure_id
+        figure_URL = "http://"+str(host)+URL_base+str(figure_id)+"/"
+        print("figure_URL", figure_URL)
+        #print("redirected_figure_URL", redirect(figure_URL))
+        figures_links.append(figure_URL)
+        #client.setOutput("Message", rstring(message))
+        print(message)
+
+    context['figures_links'] = figures_links
+    #return HttpResponse("Thankyou")
+    #Pour redirection vers OMERO;figure, voir https://realpython.com/django-redirects/
+    return render(request, 'my_channel_viewer/handle_submit.html', context)
 
 @login_required()
 def getImageFromID():

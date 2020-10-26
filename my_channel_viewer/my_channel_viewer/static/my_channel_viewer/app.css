@@ -26,36 +26,101 @@ table {
 
 
 #TuningItems>div { /* ">" est important pour éviter d'appliquer les réglages à tous les div. */
-    margin: 80px 40px;
-    padding: 25px;
-    background: #cccfff;
+  /*height: 1000px;*/
+  height:auto;
+  width: auto;
+  margin: 80px 40px;
+  padding: 25px;
+  background: #cccfff;
 }
 
 /* Don't allow images to show full-size */
 .ResultImage {
-  max-width: 200px;
+  position:static;
+  top: 75px;
+  right: 0;
+  float:left;
+  max-width: 400px;
 }
 
 .ChannelImage {
+  position:static;
+  top: 75px;
+  right: 0;
   float:left;
-  max-width: 200px;
+  max-width: 400px;
 }
 
 .MontageImage{
-  max-width: 600px;
+  max-width: 1000px;
+}
+
+.ThumbnailsList{
+  position:static;
+  /*float:left;*/
+  display:inline-block;
+}
+
+.ResultTuningArtifacts{
+  position:relative;
+  float:right;
+  top:0px;
+  bottom:0px;
+  left:20px;
+  display:inline-block;
+}
+
+.ChannelTuningArtifacts{
+  position:relative;
+  float:right;
+  top:-400px;
+  bottom:0px;
+  left:500px;
+  display:inline-block;
 }
 
 .ChannelTuner {
+  position:static;
   float:left;
   display:inline-block;
   /*display: flex;*/
   justify-content: space-evenly;
 }
 
+.ResultTuner {
+  position:static;
+  float:left;
+  display:inline-block;
+  /*display: flex;*/
+  justify-content: space-evenly;
+}
+
+.QuickFigureTuner {
+  position:relative;
+  float:left;
+  display:inline-block;
+  /*display: flex;*/
+  justify-content: space-evenly;
+}
+
+
 .chartContainer {
+  position:relative;
+  height: auto;
+  margin: 0px auto;
+  width: auto;
+  background:white;
+  border: solid #ccc 1px;
+  margin-bottom: 6px;
+  right:-500px;
+  top:-200px;
   float:right;
   display:inline-block;
-  width: 5%;
+}
+
+.ImageDivItem{
+  height:auto;
+  position:relative;
 }
 
 #ChannelsImages img {
